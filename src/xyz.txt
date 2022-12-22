@@ -1,0 +1,79 @@
+  // if (file) {
+  //   let formData = new FormData();
+  //   formData.append("file", file, file.name);
+  //   console.log(Object.fromEntries(formData));
+  // }
+
+  // const handleChange = (e) => {
+  //   setFile(e.target.files[0]);
+  //   setLoading(true);
+  //   console.log(e.target.files[0]);
+  // };
+
+  // useEffect(() => {
+  //   if (file) {
+  //     console.log("RNINU");
+  //     let formData = new FormData();
+  //     formData.append("image", file);
+
+  //     const requestOption = {
+  //       method: "POST",
+  //       body: formData,
+  //       Accept: "application/json",
+  //     };
+
+  //     fetch(url, requestOption)
+  //       .then((response) => response.json())
+  //       .then((res) => {
+  //         console.log(res);
+  //         const filtered = res.text.filter((str) => {
+  //           return /\S/.test(str);
+  //         });
+  //         setImgText({ id: res.id, text: filtered });
+  //         setLoading(false);
+  //       })
+  //       .catch((e) => console.log("I GOT AN ERROR =>", e));
+  //   }
+  // }, [file]);
+
+
+
+
+
+
+  // export const extractionApi = async (imgData, id = null) => {
+//   const api_key = "l39YP-QKZdo6otXIhnuVcZmlbK9-uT9MQw40sILqd1U";
+//   const url = `https://seashell-app-rkt4r.ondigitalocean.app/${api_key}`;
+
+//   let image = new FormData();
+
+//   let data;
+//   if (!id) {
+//     image.append("image", imgData);
+//     data = { imgData: image };
+//   } else {
+//     image.append("image", imgData);
+//     // console.log("HABAAAA -->", image.get(`file-${id}`));
+//     data = { imgData: image, id: id };
+//   }
+
+//   const requestOption = {
+//     method: "POST",
+//     body: image,
+//     Accept: "application/json",
+//   };
+
+//   await fetch(url, requestOption)
+//     .then((response) => response.json())
+//     .then((res) => {
+//       const filtered = res.text.filter((str) => {
+//         return /\S/.test(str);
+//       });
+//       console.log("WE DON LAND!", filtered);
+//       return { status: "success", response: filtered };
+//     })
+//     .catch((e) => {
+//       console.log("NA ERROR O!");
+//       return { status: "error", response: e };
+//     });
+// };
