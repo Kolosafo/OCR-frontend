@@ -2,8 +2,8 @@ import { createContext } from "react";
 
 export const themes = {
   dark: {
-    height: "100vh",
-    width: "99vw",
+    height: "140vh",
+    width: "98vw",
     display: "flex",
     justifyContent: "center",
     flexDirection: "column",
@@ -12,12 +12,12 @@ export const themes = {
     backgroundColor: "#373638",
   },
   light: {
-    height: "100vh",
+    height: "140vh",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    width: "99vw",
+    width: "98vw",
     color: "#373638",
     backgroundColor: "white",
   },

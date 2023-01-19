@@ -3,11 +3,15 @@ import { FileUploader } from "react-drag-drop-files";
 import { themes } from "../../Context/ThemeContext";
 import darkDropIcon from "../../assets/darkDropIcon.png";
 import lightDropIcon from "../../assets/lightDropIcon.png";
+import { TbHandFinger } from "react-icons/tb";
+
 import {
   Container,
   DragandDropArea,
   ButtonContainer,
   ActionButton,
+  MainContainer,
+  H3,
 } from "./style";
 
 const DragAndDrop = ({
@@ -22,6 +26,7 @@ const DragAndDrop = ({
   loading,
 }) => {
   const [btnColor, setBtnColor] = useState(themeColor);
+  const [clickAble, setClickable] = useState(loading);
   const fileTypes = ["jpg", "png", "jpeg"];
 
   //USE-EFFECT
@@ -56,35 +61,36 @@ const DragAndDrop = ({
   };
 
   useEffect(() => {
-    console.log("THE THEME COLOR", btnColor);
+    setClickable(loading);
+    console.log("THE THEME COLOR", clickAble);
     themeColor === themes.dark.color
       ? setBtnColor(themes.light.color)
       : setBtnColor(themes.dark.color);
-  }, [themeColor, btnColor]);
+  }, [themeColor, btnColor, loading]);
   return (
-    <Container color={themeColor}>
-      <FileUploader
-        handleChange={handleChange}
-        name="file"
-        types={fileTypes}
-        onTypeError={handleTypeError}
-        multiple={true}
-        style={{ display: "flex" }}
-      >
-        <>
-          <DragandDropArea>
+    <MainContainer>
+      <Container color={themeColor} imports={imports}>
+        <FileUploader
+          handleChange={handleChange}
+          name="file"
+          types={fileTypes}
+          onTypeError={handleTypeError}
+          multiple={true}
+          style={{ display: "flex" }}
+        >
+          <DragandDropArea imports={imports}>
             {children}
 
             {!imports ? (
               themeColor === themes.dark.color ? (
                 <img
-                  style={{ width: "70%" }}
+                  style={{ width: "70%", marginTop: "50px" }}
                   src={darkDropIcon}
                   alt="darkIcon"
                 />
               ) : (
                 <img
-                  style={{ width: "70%" }}
+                  style={{ width: "70%", marginTop: "50px" }}
                   src={lightDropIcon}
                   alt="darkIcon"
                 />
@@ -94,14 +100,13 @@ const DragAndDrop = ({
             {}
 
             <h3 style={{ flex: "1", fontSize: "18px" }}>
-              Drop Your Files Here
+              Drop Your Files Here{" "}
+              <TbHandFinger color="yellow" fill="yellow" size={"20px"} />
             </h3>
-            <h3 style={{ flex: "1", fontWeight: "300", fontSize: "15px" }}>
-              JPG, PNG, SVG, PDF file size no more than 10mb
-            </h3>
+            {/* <H3>JPG, PNG, SVG, PDF file size no more than 10mb</H3> */}
           </DragandDropArea>
-        </>
-      </FileUploader>
+        </FileUploader>
+      </Container>
 
       <ButtonContainer>
         <ActionButton
@@ -117,8 +122,9 @@ const DragAndDrop = ({
               color={btnColor}
               onClick={handleExtract}
               loading={loading}
+              style={{ marginLeft: "30px", textAlign: "center" }}
             >
-              Upload All
+              {imports.length > 1 ? " Upload All" : "Upload"}
             </ActionButton>
           ) : !extractionStatus > 0 ? (
             <FileUploader
@@ -128,14 +134,18 @@ const DragAndDrop = ({
               onTypeError={handleTypeError}
               multiple={true}
             >
-              <ActionButton bgcolor={themeColor} color={btnColor}>
+              <ActionButton
+                bgcolor={themeColor}
+                color={btnColor}
+                style={{ marginLeft: "30px", textAlign: "center" }}
+              >
                 Select files
               </ActionButton>
             </FileUploader>
           ) : null // IS NULL BECAUSE IT IS TO BE REPLACED WITH MARGE ALL FROM MAIN.JS
         }
       </ButtonContainer>
-    </Container>
+    </MainContainer>
   );
 };
 

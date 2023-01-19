@@ -10,26 +10,29 @@ import { extractionApi } from "./api/extractionApi";
 import DragAndDrop from "./components/DragAndDrop";
 import Preview from "./components/Preview";
 import PDFFile from "./components/PDF_File";
+import Instruction from "./components/Instruction/index";
 import { convertToBase64 } from "./utils/imgConvert";
 import { themes } from "./Context/ThemeContext";
 import { FiToggleRight, FiToggleLeft } from "react-icons/fi";
+import { IoImageOutline } from "react-icons/io5";
+import { ActionButton } from "./components/DragAndDrop/style";
 import {
   UploadAllContainer,
   UploadedFile,
   MainContainer,
   margeAllStyle,
   relative,
-  ToddleContainer,
+  ToggleContainer,
+  Logo,
 } from "./mainStyle";
 import { CirclesWithBar } from "react-loader-spinner";
 import { BsFillPatchCheckFill } from "react-icons/bs";
 import { ButtonContainer } from "./components/DragAndDrop/style";
 
 function Main() {
- 
-
   //states
-  const [theme, setTheme] = useState(themes.dark);
+  // const currentTheme = JSON.parse(localStorage.getItem(setUserId.id) || '{}');
+  const [theme, setTheme] = useState(themes.light);
   const [state, dispatch] = useReducer(extractionReducer, INITIAL_STATE);
   const [invalidFile, setInvalidFile] = useState(false);
   const [imports, setImports] = useState();
@@ -38,6 +41,10 @@ function Main() {
   const [extractedCount, setExtractedCounts] = useState(0);
   const [base64, setBase64] = useState("");
   const [merge, setMerge] = useState([]);
+  const [loading, setLoading] = useState(1);
+  const [index, setIndex] = useState(0);
+  const [previewText, setPreviewText] = useState("");
+  const [multiple, setMultiple] = useState(false);
 
   const modeChanger = {
     backgroundColor: `${theme.color ? theme.color : "red"}`,
@@ -52,8 +59,10 @@ function Main() {
 
   const handleExtract = () => {
     setExtracted("clear");
+    setLoading(0);
     dispatch({ type: EXTRACTION_ACTIONS.start });
     if (imports.length > 1) {
+      setMultiple(true);
       let count = 0;
       console.log("NA PLENTY", imports);
       imports.map(async (_imports) => {
@@ -111,40 +120,90 @@ function Main() {
   };
 
   const toggleTheme = () => {
-    theme === themes.dark ? setTheme(themes.light) : setTheme(themes.dark);
+    if (theme === themes.dark) {
+      setTheme(themes.light);
+      localStorage.removeItem("theme");
+      localStorage.setItem("theme", JSON.stringify("light"));
+    } else {
+      localStorage.removeItem("theme");
+      console.log("CHANGING THEME");
+      setTheme(themes.dark);
+      localStorage.setItem("theme", JSON.stringify("dark"));
+    }
   };
   useEffect(() => {
+    const currentTheme = JSON.parse(localStorage.getItem("theme"));
+    if (currentTheme === "dark") {
+      console.log("rerender? THEME", currentTheme, themes.dark);
+      setTheme(themes.dark);
+    } else {
+      console.log("rerender? THEME", currentTheme, themes.light);
+      setTheme(themes.light);
+    }
+
+    console.log("PREVIEW CHECK", previewText);
     if (state) {
       //pre-merging data just incase, no hassle
       handleMerge();
+      //rever extraction for preview
+      console.log("BEFORE REVRSE", state.extractions);
+
+      // state.extractions.sort(function (a, b) {
+      //   var keyA = a,
+      //     keyB = b
+      //   // Compare the 2 dates
+      //   if (keyA < keyB) return -1;
+      //   if (keyA > keyB) return 1;
+      //   return 0;
+      // });
+      // console.log("REORDERED", state.extractions.sort((a, b) => a.id - b.id));
+      // handleReverseArray(state.extractions);
     }
     if (imports) {
       if (extractedCount === imports.length) {
         setExtractionStatus(1);
+        setLoading(0);
         console.log("YOU FIT MERGE NOW!", extractedCount);
+      } else {
+        // state.loading
       }
       if (imports.length === 1) {
         convertToBase64(imports[0], setBase64);
       }
     }
     if (extracted === "cancel") {
-      window.location.reload();
+      if (imports || state.extractions.length !== 0) {
+        window.location.reload();
+      } else {
+        console.log("CAN'T RELOAD", imports, state.extractions.length);
+      }
     }
-  }, [state, extractedCount, imports, extractedCount, extracted]);
+  }, [state, extractedCount, imports, extractedCount, extracted, previewText]);
 
+  useEffect(() => {
+    if (extractedCount === 1) {
+      // setPreviewText(state.extractions.sort((a, b) => a.id - b.id)[1]);
+      document.getElementById("id-1").click();
+    }
+  }, [extractedCount, state.extractions]);
   return (
     <div style={{ ...theme, ...relative }}>
-      <ToddleContainer>
-        <span style={{ marginRight: "1.5rem" }}>Light</span>
+      <ToggleContainer multiple={multiple} imports={imports} state={state}>
+        <span style={{ marginRight: "1.3rem", fontSize: '1.3rem' }}>Light</span>
         {theme === themes.dark ? (
-          <FiToggleRight size={"1.8rem"} onClick={toggleTheme} />
+          <FiToggleRight size={"3rem"} onClick={toggleTheme} />
         ) : (
-          <FiToggleLeft size={"1.8rem"} onClick={toggleTheme} />
+          <FiToggleLeft size={"3rem"} onClick={toggleTheme} />
         )}
-        <span style={{ marginLeft: "1.5rem" }}>Dark</span>
-      </ToddleContainer>
+        <span style={{ marginLeft: "1.3rem", fontSize: '1.3rem' }}>Dark</span>
+      </ToggleContainer>
+
+      <Logo multiple={multiple} imports={imports} state={state}>
+        <h2 style={{ marginLeft: "1.4rem" }}>LOGO</h2>
+      </Logo>
 
       {/* <input type="file" onChange={(e) => handleChange(e)} /> */}
+      <Instruction themeColor={theme.color} multiple={multiple} />
 
       <MainContainer
         style={{
@@ -154,29 +213,66 @@ function Main() {
               : "flex"
           }`,
         }}
+        bgcolor={theme.color}
       >
-        <DragAndDrop
-          setImports={setImports}
-          setExtracted={setExtracted}
-          setInvalidFile={setInvalidFile}
-          themeColor={theme.color}
-          imports={imports}
-          extractionStatus={extractionStatus}
-          handleExtract={handleExtract}
-          loading={state.loading}
+        {!multiple ? (
+          <DragAndDrop
+            setImports={setImports}
+            setExtracted={setExtracted}
+            setInvalidFile={setInvalidFile}
+            themeColor={theme.color}
+            imports={imports}
+            extractionStatus={extractionStatus}
+            handleExtract={handleExtract}
+            loading={loading}
+          >
+            <span>{invalidFile ? "Unsupported File Format" : ""}</span>
+          </DragAndDrop>
+        ) : multiple ? (
+          <Preview
+            themeColor={theme.color}
+            image={base64}
+            extractedText={previewText}
+            setExtracted={setExtracted}
+            setIndex={setIndex}
+            index={index}
+            multiple={multiple}
+            setTheme={setTheme}
+          />
+        ) : null}
+
+        <UploadAllContainer
+          bgcolor={theme.backgroundColor}
+          displayStatus={imports}
+          style={{ marginBottom: "50px" }}
         >
-          <span>{invalidFile ? "Unsupported File Format" : ""}</span>
-        </DragAndDrop>
-        <UploadAllContainer>
+          {/* <>
+         
+          </> */}
           {imports && imports.length > 1 ? (
+            (console.log("CHECKING IMPORTS", imports),
             imports.map((importFile, index) => {
               return (
                 <UploadedFile
                   bgcolor={theme.color}
+                  id={"imported-file"}
                   color={theme.backgroundColor}
                   extracted={extracted}
                   index={index}
+                  onClick={() => {
+                    // setIndex(index);
+                    setPreviewText(
+                      state.extractions.sort((a, b) => a.id - b.id)[index]
+                    );
+                    convertToBase64(imports[index].image, setBase64);
+                    // console.log("CHECKING REVERSE INDEX", );
+                  }}
                 >
+                  <IoImageOutline
+                    color="grey"
+                    size={"25px"}
+                    style={{ marginLeft: "15px", marginRight: "10px" }}
+                  />
                   <span
                     id={`id-${importFile.index}`}
                     style={{ marginRight: "auto", marginLeft: "10px" }}
@@ -188,8 +284,8 @@ function Main() {
                       (console.log("I HAVE STARTED LOADING!"),
                       extracted === "clear" ? (
                         <CirclesWithBar
-                          height="50"
-                          width="50"
+                          height="30"
+                          width="30"
                           color="#4fa94d"
                           wrapperStyle={{}}
                           wrapperClass=""
@@ -201,8 +297,8 @@ function Main() {
                         />
                       ) : (
                         <CirclesWithBar
-                          height="50"
-                          width="50"
+                          height="30"
+                          width="30"
                           color="#4fa94d"
                           wrapperStyle={{}}
                           wrapperClass=""
@@ -222,8 +318,8 @@ function Main() {
                       (<BsFillPatchCheckFill color="green" size={"24px"} />))
                     ) : extractedCount <= index + 1 && extractedCount !== 0 ? (
                       <CirclesWithBar
-                        height="50"
-                        width="50"
+                        height="30"
+                        width="30"
                         color="#4fa94d"
                         wrapperStyle={{}}
                         wrapperClass=""
@@ -240,13 +336,19 @@ function Main() {
                   </span>
                 </UploadedFile>
               );
-            })
-          ) : imports ? (
+            }))
+          ) : //SINGLE IMAGE LAODING BELOW
+          imports ? (
             <UploadedFile
               bgcolor={theme.color}
               color={theme.backgroundColor}
               extracted={extracted}
             >
+              <IoImageOutline
+                color="grey"
+                size={"25px"}
+                style={{ marginLeft: "15px", marginRight: "20px" }}
+              />
               <span
                 id={`id-${imports[0].index}`}
                 style={{ marginRight: "auto", marginLeft: "10px" }}
@@ -258,8 +360,8 @@ function Main() {
                   (console.log("I HAVE STARTED LOADING!"),
                   extracted === "clear" ? (
                     <CirclesWithBar
-                      height="50"
-                      width="50"
+                      height="30"
+                      width="30"
                       color="#4fa94d"
                       wrapperStyle={{}}
                       wrapperClass=""
@@ -271,8 +373,8 @@ function Main() {
                     />
                   ) : (
                     <CirclesWithBar
-                      height="50"
-                      width="50"
+                      height="30"
+                      width="30"
                       color="#4fa94d"
                       wrapperStyle={{}}
                       wrapperClass=""
@@ -293,8 +395,8 @@ function Main() {
                 ) : extractedCount <= imports[0].index + 1 &&
                   extractedCount !== 0 ? (
                   <CirclesWithBar
-                    height="50"
-                    width="50"
+                    height="30"
+                    width="30"
                     color="#4fa94d"
                     wrapperStyle={{}}
                     wrapperClass=""
@@ -321,15 +423,37 @@ function Main() {
         />
       )}
 
-      {extractionStatus === 1 ? (
-        <ButtonContainer style={{ justifyContent: "flex-end" }}>
-          <PDFDownloadLink
-            document={<PDFFile texts={merge} />}
-            fileName={`merged.pdf`}
-            style={{ ...margeAllStyle, ...modeChanger }}
+      {multiple ? (
+        <ButtonContainer style={{ justifyContent: "space-around" }}>
+          <ActionButton
+            // style={buttonStyle}
+            onClick={() => setExtracted("cancel")}
           >
-            {({ loading }) => (loading ? " Loading Document..." : "Merge All")}
-          </PDFDownloadLink>
+            Cancel
+          </ActionButton>
+          {extractionStatus === 1 ? (
+            <PDFDownloadLink
+              document={<PDFFile texts={merge} />}
+              fileName={`merged.pdf`}
+              style={{ ...margeAllStyle, ...modeChanger, fontSize: "1.2rem" }}
+            >
+              {({ loading }) => (loading ? " Merge All" : "Merge All")}
+            </PDFDownloadLink>
+          ) : (
+            <PDFDownloadLink
+              document={<PDFFile texts={merge} />}
+              fileName={`merged.pdf`}
+              style={{
+                ...margeAllStyle,
+                ...modeChanger,
+                fontSize: "1.2rem",
+                pointerEvents: "none",
+                cursor: "not-allowed",
+              }}
+            >
+              {({ loading }) => (loading ? "Merge All" : "Merge All")}
+            </PDFDownloadLink>
+          )}
         </ButtonContainer>
       ) : null}
     </div>
