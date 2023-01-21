@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/static/css/main.3e4e4510.css",
+    "main.js": "/static/js/main.ac42fcf0.js",
+    "static/js/787.deeec6c3.chunk.js": "/static/js/787.deeec6c3.chunk.js",
+    "static/media/darkDropIcon.png": "/static/media/darkDropIcon.cb358e1c1b80a38ddf1f.png",
+    "static/media/lightDropIcon.png": "/static/media/lightDropIcon.084ac21b5725d0760b11.png",
+    "index.html": "/index.html",
+    "main.3e4e4510.css.map": "/static/css/main.3e4e4510.css.map",
+    "main.ac42fcf0.js.map": "/static/js/main.ac42fcf0.js.map",
+    "787.deeec6c3.chunk.js.map": "/static/js/787.deeec6c3.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3e4e4510.css",
+    "static/js/main.ac42fcf0.js"
+  ]
+}
